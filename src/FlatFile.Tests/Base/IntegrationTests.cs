@@ -1,14 +1,14 @@
 namespace FlatFile.Tests.Base
 {
+    using FlatFile.Core;
+    using FlatFile.Core.Base;
+    using FlatFile.Tests.Base.Entities;
+    using FluentAssertions;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using FlatFile.Core;
-    using FlatFile.Core.Base;
-    using FlatFile.Tests.Base.Entities;
-    using FluentAssertions;
     using Xunit;
 
     public abstract class IntegrationTests<TFieldSettings, TConstructor, TLayout>
@@ -40,7 +40,7 @@ namespace FlatFile.Tests.Base
         }
 
         [Fact]
-        public virtual void CoundOfTheObjectsAfterWriteReadShouldBeTheSame()
+        public virtual void CountOfTheObjectsAfterWriteReadShouldBeTheSame()
         {
             InvokeWriteTest((engine, stream) =>
             {
@@ -58,7 +58,7 @@ namespace FlatFile.Tests.Base
             {
                 var objectsAfterRead = engine.Read<TestObject>(stream).ToList();
 
-                objectsAfterRead.ShouldAllBeEquivalentTo(Objects, options => options.IncludingAllDeclaredProperties());
+                objectsAfterRead.Should().BeEquivalentTo(Objects, options => options.IncludingAllDeclaredProperties());
 
             });
         }
@@ -66,11 +66,11 @@ namespace FlatFile.Tests.Base
         [Fact]
         public void AllDeclaredPropertiesOfTheObjectsAfterReadFromSourceShouldBeTheSame()
         {
-            InvokeReadbasedTest((engine, stream) =>
+            InvokeReadBasedTest((engine, stream) =>
             {
                 var objectsAfterRead = engine.Read<TestObject>(stream).ToList();
 
-                objectsAfterRead.ShouldAllBeEquivalentTo(Objects, options => options.IncludingAllDeclaredProperties());
+                objectsAfterRead.Should().BeEquivalentTo(Objects, options => options.IncludingAllDeclaredProperties());
 
             }, TestSource);
         }
@@ -87,7 +87,7 @@ namespace FlatFile.Tests.Base
             }
         }
 
-        protected virtual void InvokeReadbasedTest(Action<IFlatFileEngine, MemoryStream> action,
+        protected virtual void InvokeReadBasedTest(Action<IFlatFileEngine, MemoryStream> action,
             string textSource)
         {
             using (var memory = new MemoryStream(Encoding.UTF8.GetBytes(textSource)))

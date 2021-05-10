@@ -1,16 +1,16 @@
 ﻿namespace FlatFile.Benchmark
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
     using BenchmarkIt;
     using CsvHelper;
     using FlatFile.Benchmark.Entities;
     using FlatFile.Benchmark.Mapping;
     using FlatFile.Delimited.Implementation;
-    using FluentAssertions;
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
     using Xunit;
 
     public class FlatFileVsCsvHelperBenchmark
@@ -47,18 +47,19 @@
             };
 
             Benchmark.This("CsvWriter.WriteRecords", () =>
-            {
-                using (var memoryStream = new MemoryStream())
-                using (var streamWriter = new StreamWriter(memoryStream))
-                using (var writer = new CsvWriter(streamWriter))
                 {
-                    writer.Configuration.RegisterClassMap<CsvHelperMappingForCustomObject>();
+                    using (var memoryStream = new MemoryStream())
+                    using (var streamWriter = new StreamWriter(memoryStream))
+                    using (var writer = new CsvWriter(streamWriter, CultureInfo.CurrentCulture))
+                    {
+                        var context = new CsvContext(writer);
 
-                    writer.WriteRecords(records);
+                        context.RegisterClassMap<CsvHelperMappingForCustomObject>();
+                        writer.WriteRecords(records);
 
-                    streamWriter.Flush();
-                }
-            })
+                        streamWriter.Flush();
+                    }
+                })
                 .Against.This("FlatFileEngine.Write", () =>
                 {
                     var layout = new FlatFileMappingForCustomObject();
@@ -89,9 +90,11 @@ two,2,06776ed9-d33f-470f-bd3f-8db842356330,4|5|6
             {
                 using (var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileContent)))
                 using (var streamReader = new StreamReader(memoryStream))
-                using (var reader = new CsvReader(streamReader))
+                using (var reader = new CsvReader(streamReader, CultureInfo.CurrentCulture))
                 {
-                    reader.Configuration.RegisterClassMap<CsvHelperMappingForCustomObject>();
+                    var context = new CsvContext(reader);
+
+                    context.RegisterClassMap<CsvHelperMappingForCustomObject>();
 
                     var objects = reader.GetRecords<CustomObject>().ToArray();
                 }

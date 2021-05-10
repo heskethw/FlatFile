@@ -1,5 +1,7 @@
 ﻿namespace FlatFile.Benchmark.Converters
 {
+    using CsvHelper;
+    using CsvHelper.Configuration;
     using System;
     using CsvHelperTypeConversion = CsvHelper.TypeConversion;
 
@@ -30,6 +32,16 @@
         public bool CanConvertTo(Type type)
         {
             return converter.CanConvertTo(type);
+        }
+
+        public object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            return converter.ConvertFromString(text);
+        }
+
+        public string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+        {
+            return converter.ConvertToString(value);
         }
     }
 }
